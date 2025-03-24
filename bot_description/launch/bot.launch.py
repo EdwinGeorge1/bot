@@ -96,3 +96,6 @@ def generate_launch_description():
         urdf_spawn_node,
         slam_node,
     ])
+
+
+##
