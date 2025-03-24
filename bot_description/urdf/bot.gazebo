@@ -113,12 +113,15 @@
 
     <plugin name="laser" filename="libgazebo_ros_ray_sensor.so">
       <ros>
-        <remapping>~/scan:=scan</remapping>  Ensure correct remapping
+        <remapping>~/scan:=scan</remapping>  
       </ros>
       <output_type>sensor_msgs/LaserScan</output_type>
       <frame_name>lidar_1</frame_name>
     </plugin>
   </sensor>
 </gazebo>
+
+
+
 
 </robot>
