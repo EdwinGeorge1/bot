@@ -1,0 +1,130 @@
+<?xml version="1.0" ?>
+<robot name="bot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find bot_description)/urdf/materials.xacro" />
+<xacro:include filename="$(find bot_description)/urdf/bot.trans" />
+<xacro:include filename="$(find bot_description)/urdf/bot.gazebo" />
+
+
+<link name="base_footprint">
+  <!-- <collision>
+    <origin xyz="0.0 0.0 0.003" rpy="0 0 0"/>
+    <geometry>
+      <box size="0.4 0.20 0.005" />
+    </geometry>
+  </collision> -->
+</link>
+
+<joint name="footprint2baselink" type="fixed">
+  <parent link="base_footprint"/>
+  <child link="base_link"/>
+  <origin xyz="0 0 0" rpy="0 0 0"/>
+  <axis xyz="0 0 0"/>
+</joint>
+
+
+<link name="base_link">
+  <inertial>
+    <origin xyz="0.002698320672702968 3.530562988808361e-17 0.05060913918526123" rpy="0 0 0"/>
+    <mass value="8.73800025149821"/>
+    <inertia ixx="0.115348" iyy="0.119778" izz="0.230759" ixy="0.0" iyz="0.0" ixz="-0.000949"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find bot_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find bot_description)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="right_wheel_1">
+  <inertial>
+    <origin xyz="-5.790023100122029e-18 -0.012499999999999983 0.0" rpy="0 0 0"/>
+    <mass value="0.1826050729899067"/>
+    <inertia ixx="0.000124" iyy="0.000228" izz="0.000124" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0 0.2 -0.05" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find bot_description)/meshes/right_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0 0.2 -0.05" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find bot_description)/meshes/right_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="lidar_1">
+  <inertial>
+    <origin xyz="2.7755575615628914e-17 1.544006160032542e-17 0.012500000000000011" rpy="0 0 0"/>
+    <mass value="0.8670059413129639"/>
+    <inertia ixx="0.00035" iyy="0.00035" izz="0.00061" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.125 -0.0 -0.11" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find bot_description)/meshes/lidar_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.125 -0.0 -0.11" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find bot_description)/meshes/lidar_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="left_wheel_1">
+  <inertial>
+    <origin xyz="-5.790023100122029e-18 0.012499999999999983 0.0" rpy="0 0 0"/>
+    <mass value="0.1826050729899067"/>
+    <inertia ixx="0.000124" iyy="0.000228" izz="0.000124" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.0 -0.2 -0.05" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find bot_description)/meshes/left_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+    <material name="silver"/>
+  </visual>
+  <collision>
+    <origin xyz="-0.0 -0.2 -0.05" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="file://$(find bot_description)/meshes/left_wheel_1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="Revolute1" type="continuous">
+  <origin xyz="0.0 -0.2 0.05" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="right_wheel_1"/>
+  <axis xyz="0.0 1.0 0.0"/>
+</joint>
+
+<joint name="Rigid 2" type="fixed">
+  <origin xyz="0.125 0.0 0.11" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="lidar_1"/>
+</joint>
+
+<joint name="Revolute3" type="continuous">
+  <origin xyz="0.0 0.2 0.05" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="left_wheel_1"/>
+  <axis xyz="0.0 1.0 0.0"/>
+</joint>
+
+</robot>
