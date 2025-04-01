@@ -1,1 +1,0 @@
-/home/edwin/ros2_ws/src/bot_description/launch/display.launch.py
