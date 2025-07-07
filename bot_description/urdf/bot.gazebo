@@ -43,7 +43,7 @@
       <left_joint>Revolute3</left_joint>
       <right_joint>Revolute1</right_joint>
 
-      <wheel_separation>0.2</wheel_separation>
+      <wheel_separation>0.4</wheel_separation>
       <wheel_diameter>0.1</wheel_diameter>
 
       <command_topic>cmd_vel</command_topic>
