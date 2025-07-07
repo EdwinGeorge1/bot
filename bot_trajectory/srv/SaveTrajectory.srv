@@ -1,0 +1,4 @@
+float64 duration  # Duration in seconds (0 = save all)
+---
+bool success
+string message
