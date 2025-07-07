@@ -9,6 +9,11 @@
 #include <deque>
 #include <fstream>
 #include <iomanip>
+#include <string>
+#include <chrono>
+#include <nlohmann/json.hpp>  // Add this dependency for JSON support
+
+using json = nlohmann::json;
 
 struct TimedPoint {
   rclcpp::Time timestamp;
@@ -18,15 +23,21 @@ struct TimedPoint {
 class TrajectorySaverNode : public rclcpp::Node {
 public:
   TrajectorySaverNode() : Node("trajectory_saver_node") {
+    // Declare parameters for save format and duration (seconds)
+    this->declare_parameter<std::string>("save_format", "yaml");  // yaml, csv, json
+    this->declare_parameter<double>("save_duration", 0.0);        // 0 means all
+
     odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-        "/odom", 10, std::bind(&TrajectorySaverNode::odomCallback, this, std::placeholders::_1));
+        "/odom", 10,
+        std::bind(&TrajectorySaverNode::odomCallback, this, std::placeholders::_1));
 
     marker_pub_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
         "/trajectory_marker", 10);
 
     save_service_ = this->create_service<std_srvs::srv::Trigger>(
         "/save_trajectory",
-        std::bind(&TrajectorySaverNode::handleSaveRequest, this, std::placeholders::_1, std::placeholders::_2));
+        std::bind(&TrajectorySaverNode::handleSaveRequest, this,
+                  std::placeholders::_1, std::placeholders::_2));
 
     timer_ = this->create_wall_timer(
         std::chrono::seconds(1), std::bind(&TrajectorySaverNode::publishMarkers, this));
@@ -64,31 +75,85 @@ private:
   }
 
   void handleSaveRequest(
-      const std::shared_ptr<std_srvs::srv::Trigger::Request> request,
+      const std::shared_ptr<std_srvs::srv::Trigger::Request> /*request*/,
       std::shared_ptr<std_srvs::srv::Trigger::Response> response) {
 
-    (void)request;  // unused
+    // Get parameters
+    auto save_format = this->get_parameter("save_format").as_string();
+    auto save_duration = this->get_parameter("save_duration").as_double();
 
-    std::string filename = "trajectory.yaml";
+    // Filter trajectory by duration if > 0
+    std::deque<TimedPoint> filtered_trajectory;
+    if (save_duration > 0 && !trajectory_.empty()) {
+      auto latest_time = trajectory_.back().timestamp;
+      for (auto it = trajectory_.rbegin(); it != trajectory_.rend(); ++it) {
+        double dt = (latest_time - it->timestamp).seconds();
+        if (dt <= save_duration) {
+          filtered_trajectory.push_front(*it);
+        } else {
+          break;
+        }
+      }
+    } else {
+      filtered_trajectory = trajectory_;
+    }
+
     try {
-      std::ofstream file(filename);
-      file << "trajectory:\n";
-      for (const auto& tp : trajectory_) {
-        file << "  - time: " << std::fixed << std::setprecision(3) << tp.timestamp.seconds() << "\n";
-        file << "    x: " << tp.point.x << "\n";
-        file << "    y: " << tp.point.y << "\n";
-        file << "    z: " << tp.point.z << "\n";
+      if (save_format == "yaml") {
+        saveYaml(filtered_trajectory);
+      } else if (save_format == "csv") {
+        saveCsv(filtered_trajectory);
+      } else if (save_format == "json") {
+        saveJson(filtered_trajectory);
+      } else {
+        throw std::runtime_error("Unsupported save_format parameter: " + save_format);
       }
 
       response->success = true;
-      response->message = "Trajectory saved to " + filename;
-      RCLCPP_INFO(this->get_logger(), "Saved trajectory to %s", filename.c_str());
+      response->message = "Trajectory saved in " + save_format + " format";
+      RCLCPP_INFO(this->get_logger(), "%s", response->message.c_str());
 
     } catch (const std::exception &e) {
       response->success = false;
-      response->message = "Failed to save file: " + std::string(e.what());
-      RCLCPP_ERROR(this->get_logger(), "File save error: %s", e.what());
+      response->message = std::string("Failed to save trajectory: ") + e.what();
+      RCLCPP_ERROR(this->get_logger(), "%s", response->message.c_str());
     }
+  }
+
+  void saveYaml(const std::deque<TimedPoint>& traj) {
+    std::ofstream file("trajectory.yaml");
+    file << "trajectory:\n";
+    for (const auto& tp : traj) {
+      file << "  - time: " << std::fixed << std::setprecision(3) << tp.timestamp.seconds() << "\n";
+      file << "    x: " << tp.point.x << "\n";
+      file << "    y: " << tp.point.y << "\n";
+      file << "    z: " << tp.point.z << "\n";
+    }
+  }
+
+  void saveCsv(const std::deque<TimedPoint>& traj) {
+    std::ofstream file("trajectory.csv");
+    file << "time,x,y,z\n";
+    for (const auto& tp : traj) {
+      file << std::fixed << std::setprecision(3) << tp.timestamp.seconds() << ","
+           << tp.point.x << "," << tp.point.y << "," << tp.point.z << "\n";
+    }
+  }
+
+  void saveJson(const std::deque<TimedPoint>& traj) {
+    json jtraj = json::array();
+    for (const auto& tp : traj) {
+      jtraj.push_back({
+        {"time", tp.timestamp.seconds()},
+        {"x", tp.point.x},
+        {"y", tp.point.y},
+        {"z", tp.point.z}
+      });
+    }
+    json root;
+    root["trajectory"] = jtraj;
+    std::ofstream file("trajectory.json");
+    file << std::setw(2) << root << std::endl;
   }
 
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_sub_;

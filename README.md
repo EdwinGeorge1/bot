@@ -42,6 +42,21 @@ To launch navigation:
 ros2 launch bot_navigation navigation.launch.py
 ```
 
+
+# The parameters can be set with ros2 param CLI before calling the save service:
+##  For saving trajectory
+```bash
+ros2 param set /trajectory_saver_node save_format yaml
+```
+```bash
+ros2 param set /trajectory_saver_node save_duration 10.0
+```
+```bash
+ros2 service call /save_trajectory std_srvs/srv/Trigger "{}"
+```
+    save_format: "yaml", "csv", or "json" (default: "yaml")
+
+    save_duration: seconds of recent data to save (default 0 = all)
 ---
 
 ## 📜 Additional Notes
