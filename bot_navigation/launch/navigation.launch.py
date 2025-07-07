@@ -21,8 +21,12 @@ def generate_launch_description():
     )
 
     # Path to RViz configuration file
+    # rviz_config_path = PathJoinSubstitution(
+    #     [FindPackageShare('bot_description'), 'launch', 'display.rviz']
+    # )
+    # Path to RViz configuration file (your custom rviz config)
     rviz_config_path = PathJoinSubstitution(
-        [FindPackageShare('bot_description'), 'launch', 'display.rviz']
+        [FindPackageShare('bot_navigation'), 'config', 'config_rviz.rviz']
     )
 
     # Corrected Map Path (Ensure the map file exists in bot_navigation/maps/)
