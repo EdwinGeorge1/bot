@@ -4,7 +4,8 @@
 <xacro:include filename="$(find bot_description)/urdf/materials.xacro" />
 <xacro:include filename="$(find bot_description)/urdf/bot.trans" />
 <xacro:include filename="$(find bot_description)/urdf/bot.gazebo" />
-<xacro:include filename="$(find bot_description)/urdf/camera.xacro" />
+<!-- <xacro:include filename="$(find bot_description)/urdf/camera.xacro" /> -->
+<xacro:include filename="$(find bot_description)/urdf/depth_camera.xacro" />
 
 
 

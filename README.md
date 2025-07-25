@@ -22,7 +22,7 @@ This repository provides a ROS2-based simulation environment for a mobile robot,
 2. **Install dependencies:**
    ```bash
    sudo apt update
-   sudo apt install ros-humble-gazebo-ros-pkgs ros-humble-slam-toolbox ros-humble-navigation2 ros-humble-rmw-cyclonedds-cpp
+   sudo apt install ros-humble-gazebo-ros-pkgs ros-humble-slam-toolbox ros-humble-navigation2 ros-humble-rmw-cyclonedds-cpp ros-humble-image-transport-plugins
    ```
 
 3. **Build the workspace:**
